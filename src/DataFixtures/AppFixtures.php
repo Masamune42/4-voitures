@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Marque;
 use App\Entity\Modele;
+use App\Entity\Voiture;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
@@ -56,7 +57,29 @@ class AppFixtures extends Fixture
             ->setMarque($marque2);
         $manager->persist($modele5);
 
+        $modeles = [$modele1, $modele2, $modele3, $modele4, $modele5];
+
+        // Utilisation de Faker
         $faker = \Faker\Factory::create('fr_FR');
+
+        // Pour chaque modèle de voiture
+        foreach ($modeles as $m) {
+            $rand = rand(3, 5);
+            //  on va générer entre 3 et 5 voitures de ce modèle
+            for ($i = 1; $i <= $rand; $i++) {
+                $voiture = new Voiture();
+                // Style de plaque d'immatriculation : XX1234XX ou XX123XX
+                $voiture->setImmatriculation($faker->regexify("[A-Z]{2}[0-9]{3,4}[A-Z]{2}"))
+                    // 3 ou 5 portes
+                    ->setNbPortes($faker->randomElement($array = array(3, 5)))
+                    // Une année entre 1990 et 2020
+                    ->setAnnee($faker->numberBetween($min = 1990, $max = 2020))
+                    // Le modèle courant
+                    ->setModele($m);
+
+                $manager->persist($voiture);
+            }
+        }
 
         $manager->flush();
     }
